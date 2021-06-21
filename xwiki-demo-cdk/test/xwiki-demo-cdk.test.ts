@@ -17,30 +17,32 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-import { expect as expectCDK, haveResourceLike ,countResources } from '@aws-cdk/assert';
-import * as cdk from '@aws-cdk/core';
-import '@aws-cdk/assert/jest';
-import {ec2XwikiDemo} from '../lib/stacks/ec2-xwiki-demo';
-
+import { expect as expectCDK, haveResourceLike, countResources } from '@aws-cdk/assert'
+import * as cdk from '@aws-cdk/core'
+import '@aws-cdk/assert/jest'
+import { EC2XwikiDemo } from '../lib/stacks/ec2-xwiki-demo'
 
 test('Check InstanceType and SSH KeyName', () => {
-  const app = new cdk.App();
+  const app = new cdk.App()
   // WHEN
-  //const stack= new cdk.Stack(app, 'xwiki-cdk-demo-test', )
-  const stack = new ec2XwikiDemo(app, 'xwiki-cdk-demo', {
-    env:{
-      account:"656019072197",
-      region:"us-east-1"
+  // const stack= new cdk.Stack(app, 'xwiki-cdk-demo-test', )
+  const stack = new EC2XwikiDemo(app, 'xwiki-cdk-demo', {
+    env: {
+      account: '656019072197',
+      region: 'us-east-1'
     }
-  });
+  })
 
- // expect(stack).toBe(countResources("AWS::EC2::Instance", 1));
+  // expect(stack).toBe(countResources("AWS::EC2::Instance", 1));
   // THEN
   expectCDK(stack).to(
-    haveResourceLike('AWS::EC2::Instance',{
+    countResources('AWS::EC2::Instance', 1))
+    
+  expectCDK(stack).to(
+    haveResourceLike('AWS::EC2::Instance', {
       InstanceType: 't2.medium',
       KeyName: 'test'
-  })
+
+    })
   )
-  
-});
+})
