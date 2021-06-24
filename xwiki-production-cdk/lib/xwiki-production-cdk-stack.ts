@@ -17,24 +17,21 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-import { expect as expectCDK, haveResource } from '@aws-cdk/assert';
+import * as sns from '@aws-cdk/aws-sns';
+import * as subs from '@aws-cdk/aws-sns-subscriptions';
+import * as sqs from '@aws-cdk/aws-sqs';
 import * as cdk from '@aws-cdk/core';
-import * as XwikiProductionCdk from '../lib/xwiki-production-cdk-stack';
 
-test('SQS Queue Created', () => {
-    const app = new cdk.App();
-    // WHEN
-    const stack = new XwikiProductionCdk.XwikiProductionCdkStack(app, 'MyTestStack');
-    // THEN
-    expectCDK(stack).to(haveResource("AWS::SQS::Queue",{
-      VisibilityTimeout: 300
-    }));
-});
+export class XwikiProductionCdkStack extends cdk.Stack {
+  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
 
-test('SNS Topic Created', () => {
-  const app = new cdk.App();
-  // WHEN
-  const stack = new XwikiProductionCdk.XwikiProductionCdkStack(app, 'MyTestStack');
-  // THEN
-  expectCDK(stack).to(haveResource("AWS::SNS::Topic"));
-});
+    const queue = new sqs.Queue(this, 'XwikiProductionCdkQueue', {
+      visibilityTimeout: cdk.Duration.seconds(300)
+    });
+
+    const topic = new sns.Topic(this, 'XwikiProductionCdkTopic');
+
+    topic.addSubscription(new subs.SqsSubscription(queue));
+  }
+}
