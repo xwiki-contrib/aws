@@ -19,15 +19,25 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 import * as cdk from '@aws-cdk/core'
-import * as ec2 from '@aws-cdk/aws-ec2'
+import {Vpc,SecurityGroup, Peer,Port, Instance, InstanceType, InstanceClass, InstanceSize, MachineImage, AmazonLinuxGeneration, SubnetType} from '@aws-cdk/aws-ec2'
 import * as iam from '@aws-cdk/aws-iam'
 import * as fs from 'fs'
 
 export class EC2XwikiDemo extends cdk.Stack {
-  constructor (scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+  constructor (scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
 
-    const defaultVpc = ec2.Vpc.fromLookup(this, 'VPC', { isDefault: true })
+    const defaultVpc = new Vpc(this, 'VPC', { 
+      cidr: "10.0.0.0/16",
+      maxAzs:2,
+      subnetConfiguration: [
+        {
+          name: 'public',
+          subnetType: SubnetType.PUBLIC,
+          cidrMask: 27
+        }
+      ]
+     })
 
     const role = new iam.Role(
       this,
@@ -35,7 +45,7 @@ export class EC2XwikiDemo extends cdk.Stack {
       { assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com') }
     )
 
-    const securityGroup = new ec2.SecurityGroup(
+    const securityGroup = new SecurityGroup(
       this,
       'ec2-xwiki-demo-sg',
       {
@@ -47,49 +57,48 @@ export class EC2XwikiDemo extends cdk.Stack {
 
     // configuring the security group to allow inbound traffic at specific ports
     securityGroup.addIngressRule(
-      ec2.Peer.anyIpv4(),
-      ec2.Port.tcp(22),
+      Peer.anyIpv4(),
+      Port.tcp(22),
       'Allows SSH access from Internet'
     )
 
     securityGroup.addIngressRule(
-      ec2.Peer.anyIpv4(),
-      ec2.Port.tcp(80),
+      Peer.anyIpv4(),
+      Port.tcp(80),
       'Allows HTTP access from Internet'
     )
 
     securityGroup.addIngressRule(
-      ec2.Peer.anyIpv4(),
-      ec2.Port.tcp(443),
+      Peer.anyIpv4(),
+      Port.tcp(443),
       'Allows HTTPS access from Internet'
     )
 
     securityGroup.addIngressRule(
-      ec2.Peer.anyIpv6(),
-      ec2.Port.tcp(8080),
+      Peer.anyIpv6(),
+      Port.tcp(8080),
       'Allows port 8080 on Ipv6'
     )
 
     securityGroup.addIngressRule(
-      ec2.Peer.anyIpv4(),
-      // ec2.Peer.anyIpv6(),
-      ec2.Port.tcp(8080),
+      Peer.anyIpv4(),
+      Port.tcp(8080),
       'Allows port 8080 on Ipv4'
 
     )
 
     // provesioning the EC2 instance inside the VPC containg xwiki
-    const instance = new ec2.Instance(this, 'ec2-xwiki-demo', {
+    const instance = new Instance(this, 'ec2-xwiki-demo', {
       vpc: defaultVpc,
       role: role,
       securityGroup: securityGroup,
       instanceName: 'ec2-xwiki-demo',
-      instanceType: ec2.InstanceType.of( // t2.micro has free tier usage in aws
-        ec2.InstanceClass.T2,
-        ec2.InstanceSize.MEDIUM
+      instanceType: InstanceType.of( // t2.micro has free tier usage in aws
+        InstanceClass.T2,
+        InstanceSize.MEDIUM
       ),
-      machineImage: ec2.MachineImage.latestAmazonLinux({
-        generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2
+      machineImage: MachineImage.latestAmazonLinux({
+        generation: AmazonLinuxGeneration.AMAZON_LINUX_2
       }),
 
       keyName: 'test'// user will first create this key in console

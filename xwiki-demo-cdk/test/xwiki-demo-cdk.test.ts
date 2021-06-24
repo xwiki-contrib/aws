@@ -18,12 +18,12 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 import { expect as expectCDK, haveResourceLike, countResources } from '@aws-cdk/assert'
-import * as cdk from '@aws-cdk/core'
+import {App} from '@aws-cdk/core'
 import '@aws-cdk/assert/jest'
 import { EC2XwikiDemo } from '../lib/stacks/ec2-xwiki-demo'
 
 test('Check InstanceType and SSH KeyName', () => {
-  const app = new cdk.App()
+  const app = new App()
   // WHEN
   // const stack= new cdk.Stack(app, 'xwiki-cdk-demo-test', )
   const stack = new EC2XwikiDemo(app, 'xwiki-cdk-demo', {
@@ -46,3 +46,15 @@ test('Check InstanceType and SSH KeyName', () => {
     })
   )
 })
+
+
+import { SynthUtils } from '@aws-cdk/assert';
+import { Stack } from '@aws-cdk/core';
+
+import * as xwikiec2 from '../lib/stacks/ec2-xwiki-demo';
+
+test('demo stack matches the snapshot', () => {
+  const stack = new Stack();
+  new xwikiec2.EC2XwikiDemo(stack, 'snapshot-test-xwiki-demo');
+  expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
+});
