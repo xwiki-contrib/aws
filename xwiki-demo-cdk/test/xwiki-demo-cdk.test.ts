@@ -17,44 +17,59 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-import { expect as expectCDK, haveResourceLike, countResources } from '@aws-cdk/assert'
-import {App} from '@aws-cdk/core'
+import { expect as expectCDK, haveResourceLike, countResources, SynthUtils } from '@aws-cdk/assert'
+import { App } from '@aws-cdk/core'
 import '@aws-cdk/assert/jest'
 import { EC2XwikiDemo } from '../lib/stacks/ec2-xwiki-demo'
 
-test('Check InstanceType and SSH KeyName', () => {
-  const app = new App()
-  // WHEN
-  // const stack= new cdk.Stack(app, 'xwiki-cdk-demo-test', )
-  const stack = new EC2XwikiDemo(app, 'xwiki-cdk-demo', {
-    env: {
-      account: '656019072197',
-      region: 'us-east-1'
-    }
-  })
+const app = new App()
+// WHEN
 
-  // expect(stack).toBe(countResources("AWS::EC2::Instance", 1));
-  // THEN
+const stack = new EC2XwikiDemo(app, 'xwiki-cdk-demo', {
+  env: {
+    account: '656019072197',
+    region: 'us-east-1'
+  }
+})
+
+test('check The number of EC2 instance created', () => {
   expectCDK(stack).to(
     countResources('AWS::EC2::Instance', 1))
-    
+})
+
+test('Check InstanceType and SSH KeyName', () => {
   expectCDK(stack).to(
     haveResourceLike('AWS::EC2::Instance', {
       InstanceType: 't2.medium',
       KeyName: 'test'
+    }))
+})
 
-    })
-  )
+test('Check VPC created', () => {
+  expectCDK(stack).to(
+    countResources('AWS::EC2::VPC', 1))
+})
+
+test('EC2 instance launched inside the subnet recived Public IPv4', () => {
+  expectCDK(stack).to(
+    haveResourceLike('AWS::EC2::Subnet', {
+      "MapPublicIpOnLaunch": true,
+    }))
+})
+
+test('Check IAM role', () => {
+  expectCDK(stack).to(
+    countResources('AWS::IAM::Role', 1))
+})
+
+test('Check Security Group', () => {
+  expectCDK(stack).to(
+    countResources('AWS::EC2::SecurityGroup', 1))
 })
 
 
-import { SynthUtils } from '@aws-cdk/assert';
-import { Stack } from '@aws-cdk/core';
-
-import * as xwikiec2 from '../lib/stacks/ec2-xwiki-demo';
 
 test('demo stack matches the snapshot', () => {
-  const stack = new Stack();
-  new xwikiec2.EC2XwikiDemo(stack, 'snapshot-test-xwiki-demo');
-  expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
-});
+  new EC2XwikiDemo(app, 'snapshot-test-xwiki-demo')
+  expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot()
+})
