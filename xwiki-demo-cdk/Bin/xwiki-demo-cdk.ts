@@ -19,15 +19,14 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 import 'source-map-support/register'
-import {App} from '@aws-cdk/core'
+import { App } from '@aws-cdk/core'
 import { EC2XwikiDemo } from '../lib/stacks/ec2-xwiki-demo'
+import { xwikidownload } from '../lib/stacks/config'
 
 const app = new App()
 new EC2XwikiDemo(app, 'ec2XwikiDemo', {
-
+  xwiki: xwikidownload,
   env: {
     region: 'eu-central-1'
   }
 })
-
-

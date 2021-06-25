@@ -21,15 +21,14 @@ import { expect as expectCDK, haveResourceLike, countResources, SynthUtils } fro
 import { App } from '@aws-cdk/core'
 import '@aws-cdk/assert/jest'
 import { EC2XwikiDemo } from '../lib/stacks/ec2-xwiki-demo'
+import { ec2props } from '../lib/stacks/Ec2-model'
+import { xwikidownload } from '../lib/stacks/config'
 
 const app = new App()
 // WHEN
 
 const stack = new EC2XwikiDemo(app, 'xwiki-cdk-demo', {
-  env: {
-    account: '656019072197',
-    region: 'us-east-1'
-  }
+  xwiki: xwikidownload
 })
 
 test('check The number of EC2 instance created', () => {
@@ -53,7 +52,7 @@ test('Check VPC created', () => {
 test('EC2 instance launched inside the subnet recived Public IPv4', () => {
   expectCDK(stack).to(
     haveResourceLike('AWS::EC2::Subnet', {
-      "MapPublicIpOnLaunch": true,
+      MapPublicIpOnLaunch: true
     }))
 })
 
@@ -67,9 +66,9 @@ test('Check Security Group', () => {
     countResources('AWS::EC2::SecurityGroup', 1))
 })
 
-
-
 test('demo stack matches the snapshot', () => {
-  new EC2XwikiDemo(app, 'snapshot-test-xwiki-demo')
+  // new EC2XwikiDemo(app, 'snapshot-test-xwiki-demo',{
+  //   xwiki: xwikidownload
+  // })
   expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot()
 })

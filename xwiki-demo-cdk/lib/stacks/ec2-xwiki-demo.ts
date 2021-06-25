@@ -18,18 +18,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-import * as cdk from '@aws-cdk/core'
-import {Vpc,SecurityGroup, Peer,Port, Instance, InstanceType, InstanceClass, InstanceSize, MachineImage, AmazonLinuxGeneration, SubnetType} from '@aws-cdk/aws-ec2'
-import * as iam from '@aws-cdk/aws-iam'
-import * as fs from 'fs'
+import { Stack, App, CfnOutput } from '@aws-cdk/core'
+import { Vpc, SecurityGroup, Peer, Port, Instance, InstanceType, InstanceClass, InstanceSize, MachineImage, AmazonLinuxGeneration, SubnetType, UserData } from '@aws-cdk/aws-ec2'
+import { Role, ServicePrincipal } from '@aws-cdk/aws-iam'
+import { ec2props } from '../stacks/Ec2-model'
 
-export class EC2XwikiDemo extends cdk.Stack {
-  constructor (scope: cdk.App, id: string, props?: cdk.StackProps) {
+export class EC2XwikiDemo extends Stack {
+  constructor (scope: App, id: string, props: ec2props) {
     super(scope, id, props)
 
-    const defaultVpc = new Vpc(this, 'VPC', { 
-      cidr: "10.0.0.0/16",
-      maxAzs:2,
+    const defaultVpc = new Vpc(this, 'VPC', {
+      cidr: '10.0.0.0/16',
+      maxAzs: 2,
       subnetConfiguration: [
         {
           name: 'public',
@@ -37,12 +37,12 @@ export class EC2XwikiDemo extends cdk.Stack {
           cidrMask: 27
         }
       ]
-     })
+    })
 
-    const role = new iam.Role(
+    const role = new Role(
       this,
       'ec2-xwiki-demo-instance-role',
-      { assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com') }
+      { assumedBy: new ServicePrincipal('ec2.amazonaws.com') }
     )
 
     const securityGroup = new SecurityGroup(
@@ -101,17 +101,23 @@ export class EC2XwikiDemo extends cdk.Stack {
         generation: AmazonLinuxGeneration.AMAZON_LINUX_2
       }),
 
-      keyName: 'test'// user will first create this key in console
+      keyName: 'test', // user will first create this key in console
+
+      userData: UserData.forLinux({
+        shebang: `#! /bin/bash \n sudo yum -q -y install java-1.8.0-openjdk \n sudo yum -q -y install unzip \n mkdir xwikihome \n wget -q -O xwiki_packer.zip ${props.xwiki} \n unzip -q xwiki_packer.zip -d /home/ec2-user/xwikihome`
+      })
 
     })
-    // adding the commands that will install xwiki in the instance
-    instance.addUserData(
-      fs.readFileSync('lib/stacks/user_script.sh', 'utf8')
-    )
+
+    // const commands = ['sudo yum -q -y install java-1.8.0-openjdk && sudo yum -q -y install unzip && mkdir xwikihome && wget -q -O xwiki_packer.zip https://nexus.xwiki.org/nexus/content/groups/public/org/xwiki/platform/xwiki-platform-distribution-flavor-jetty-hsqldb/13.1/xwiki-platform-distribution-flavor-jetty-hsqldb-13.1.zip && unzip -q xwiki_packer.zip -d /home/ec2-user/xwikihome']
+    // // adding the commands that will install xwiki in the instance
+    // instance.addUserData(
+    //   fs.readFileSync('lib/stacks/user_script.sh', 'utf8')
+    // )
 
     // cdk lets us output prperties of the resources we create after they are created
     // we want the ip address of this new instance so we can ssh into it later
-    new cdk.CfnOutput(this, 'xwiki-demo-instance-output', {
+    new CfnOutput(this, 'xwiki-demo-instance-output', {
       value: instance.instancePublicIp
     })
   }

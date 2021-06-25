@@ -98,7 +98,14 @@ Object {
     },
     "VPCpublicSubnet1Subnet325F50B2": Object {
       "Properties": Object {
-        "AvailabilityZone": "dummy1a",
+        "AvailabilityZone": Object {
+          "Fn::Select": Array [
+            0,
+            Object {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
         "CidrBlock": "10.0.0.0/27",
         "MapPublicIpOnLaunch": true,
         "Tags": Array [
@@ -163,7 +170,14 @@ Object {
     },
     "VPCpublicSubnet2Subnet2B2DFF71": Object {
       "Properties": Object {
-        "AvailabilityZone": "dummy1b",
+        "AvailabilityZone": Object {
+          "Fn::Select": Array [
+            1,
+            Object {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
         "CidrBlock": "10.0.0.32/27",
         "MapPublicIpOnLaunch": true,
         "Tags": Array [
@@ -191,7 +205,14 @@ Object {
         "ec2xwikidemoinstancerole055D20F8",
       ],
       "Properties": Object {
-        "AvailabilityZone": "dummy1a",
+        "AvailabilityZone": Object {
+          "Fn::Select": Array [
+            0,
+            Object {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
         "IamInstanceProfile": Object {
           "Ref": "ec2xwikidemoInstanceProfile392DA0E1",
         },
@@ -218,19 +239,12 @@ Object {
           },
         ],
         "UserData": Object {
-          "Fn::Base64": "#!/bin/bash
-#! /bin/bash
-# become root user
-
-sudo yum -q -y install java-1.8.0-openjdk
-sudo yum -q -y install unzip
-mkdir xwikihome
-wget -q -O xwiki_packer.zip https://nexus.xwiki.org/nexus/content/groups/public/org/xwiki/platform/xwiki-platform-distribution-flavor-jetty-hsqldb/13.1/xwiki-platform-distribution-flavor-jetty-hsqldb-13.1.zip
-unzip -q xwiki_packer.zip -d /home/ec2-user/xwikihome
-
-
-
-",
+          "Fn::Base64": "#! /bin/bash 
+ sudo yum -q -y install java-1.8.0-openjdk 
+ sudo yum -q -y install unzip 
+ mkdir xwikihome 
+ wget -q -O xwiki_packer.zip https://nexus.xwiki.org/nexus/content/groups/public/org/xwiki/platform/xwiki-platform-distribution-flavor-jetty-hsqldb/13.1/xwiki-platform-distribution-flavor-jetty-hsqldb-13.1.zip 
+ unzip -q xwiki_packer.zip -d /home/ec2-user/xwikihome",
         },
       },
       "Type": "AWS::EC2::Instance",
@@ -253,7 +267,17 @@ unzip -q xwiki_packer.zip -d /home/ec2-user/xwikihome
               "Action": "sts:AssumeRole",
               "Effect": "Allow",
               "Principal": Object {
-                "Service": "ec2.amazonaws.com",
+                "Service": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "ec2.",
+                      Object {
+                        "Ref": "AWS::URLSuffix",
+                      },
+                    ],
+                  ],
+                },
               },
             },
           ],
