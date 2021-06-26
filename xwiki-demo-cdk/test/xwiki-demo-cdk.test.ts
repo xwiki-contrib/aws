@@ -24,17 +24,19 @@ import { EC2XwikiDemo } from '../lib/stacks/ec2-xwiki-demo'
 import { xwikidownload } from '../lib/stacks/config'
 
 const app = new App()
-// WHEN
+
 
 const stack = new EC2XwikiDemo(app, 'xwiki-cdk-demo', {
   xwiki: xwikidownload
 })
 
+//testing the number of EC2 instance created
 test('check The number of EC2 instance created', () => {
   expectCDK(stack).to(
     countResources('AWS::EC2::Instance', 1))
 })
 
+//testing the insatance type and SSH key name
 test('Check InstanceType and SSH KeyName', () => {
   expectCDK(stack).to(
     haveResourceLike('AWS::EC2::Instance', {
@@ -44,12 +46,13 @@ test('Check InstanceType and SSH KeyName', () => {
 })
 
 
-
+//To check the created VPC
 test('Check VPC created', () => {
   expectCDK(stack).to(
     countResources('AWS::EC2::VPC', 1))
 })
 
+//to check if EC2 instance launched inside the subnet recived Public IPv4
 test('EC2 instance launched inside the subnet recived Public IPv4', () => {
   expectCDK(stack).to(
     haveResourceLike('AWS::EC2::Subnet', {
@@ -57,17 +60,19 @@ test('EC2 instance launched inside the subnet recived Public IPv4', () => {
     }))
 })
 
+//To test IAM role created
 test('Check IAM role', () => {
   expectCDK(stack).to(
     countResources('AWS::IAM::Role', 1))
 })
 
+//to test the security group
 test('Check Security Group', () => {
   expectCDK(stack).to(
     countResources('AWS::EC2::SecurityGroup', 1))
 })
 
-
+//to test the userdata used to install xwiki instance
 test('Check user data in instance', ()=> {
   expectCDK(stack).to(
     haveResourceLike('AWS::EC2::Instance', {
@@ -78,6 +83,7 @@ test('Check user data in instance', ()=> {
   )
 })
 
+//snapshot test
 test('demo stack matches the snapshot', () => {
   expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot()
 })
