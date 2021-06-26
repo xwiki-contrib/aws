@@ -109,14 +109,7 @@ export class EC2XwikiDemo extends Stack {
 
     })
 
-    // const commands = ['sudo yum -q -y install java-1.8.0-openjdk && sudo yum -q -y install unzip && mkdir xwikihome && wget -q -O xwiki_packer.zip https://nexus.xwiki.org/nexus/content/groups/public/org/xwiki/platform/xwiki-platform-distribution-flavor-jetty-hsqldb/13.1/xwiki-platform-distribution-flavor-jetty-hsqldb-13.1.zip && unzip -q xwiki_packer.zip -d /home/ec2-user/xwikihome']
-    // // adding the commands that will install xwiki in the instance
-    // instance.addUserData(
-    //   fs.readFileSync('lib/stacks/user_script.sh', 'utf8')
-    // )
-
-    // cdk lets us output prperties of the resources we create after they are created
-    // we want the ip address of this new instance so we can ssh into it later
+    
     new CfnOutput(this, 'xwiki-demo-instance-output', {
       value: instance.instancePublicIp
     })

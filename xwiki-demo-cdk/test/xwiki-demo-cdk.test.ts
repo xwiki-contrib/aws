@@ -21,7 +21,6 @@ import { expect as expectCDK, haveResourceLike, countResources, SynthUtils } fro
 import { App } from '@aws-cdk/core'
 import '@aws-cdk/assert/jest'
 import { EC2XwikiDemo } from '../lib/stacks/ec2-xwiki-demo'
-import { ec2props } from '../lib/stacks/Ec2-model'
 import { xwikidownload } from '../lib/stacks/config'
 
 const app = new App()
@@ -67,8 +66,5 @@ test('Check Security Group', () => {
 })
 
 test('demo stack matches the snapshot', () => {
-  // new EC2XwikiDemo(app, 'snapshot-test-xwiki-demo',{
-  //   xwiki: xwikidownload
-  // })
   expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot()
 })
