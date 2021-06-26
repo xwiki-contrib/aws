@@ -43,6 +43,8 @@ test('Check InstanceType and SSH KeyName', () => {
     }))
 })
 
+
+
 test('Check VPC created', () => {
   expectCDK(stack).to(
     countResources('AWS::EC2::VPC', 1))
@@ -63,6 +65,17 @@ test('Check IAM role', () => {
 test('Check Security Group', () => {
   expectCDK(stack).to(
     countResources('AWS::EC2::SecurityGroup', 1))
+})
+
+
+test('Check user data in instance', ()=> {
+  expectCDK(stack).to(
+    haveResourceLike('AWS::EC2::Instance', {
+      UserData: {
+        "Fn::Base64": "#! /bin/bash \n sudo yum -q -y install java-1.8.0-openjdk \n sudo yum -q -y install unzip \n mkdir xwikihome \n wget -q -O xwiki_packer.zip https://nexus.xwiki.org/nexus/content/groups/public/org/xwiki/platform/xwiki-platform-distribution-flavor-jetty-hsqldb/13.1/xwiki-platform-distribution-flavor-jetty-hsqldb-13.1.zip \n unzip -q xwiki_packer.zip -d /home/ec2-user/xwikihome"
+      }
+    })
+  )
 })
 
 test('demo stack matches the snapshot', () => {
