@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
@@ -17,21 +18,38 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-import * as sns from '@aws-cdk/aws-sns';
-import * as subs from '@aws-cdk/aws-sns-subscriptions';
-import * as sqs from '@aws-cdk/aws-sqs';
-import * as cdk from '@aws-cdk/core';
+import * as cdk from '@aws-cdk/core'
+import { XwikiEfs } from '../lib/stacks/Efs'
+import { XwikiVpc } from '../lib/stacks/vpc'
+import { XwikiEncryptionKey } from '../lib/stacks/encryptionKey'
+import { xwikiRds } from '../lib/stacks/rds'
+import { region } from "../lib/config";
 
-export class XwikiProductionCdkStack extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+const app = new cdk.App()
 
-    const queue = new sqs.Queue(this, 'XwikiProductionCdkQueue', {
-      visibilityTimeout: cdk.Duration.seconds(300)
-    });
-
-    const topic = new sns.Topic(this, 'XwikiProductionCdkTopic');
-
-    topic.addSubscription(new subs.SqsSubscription(queue));
-  }
+const env = {
+  account: '656019072197',
+  region: region
 }
+
+const xwikiEncryptionKey = new XwikiEncryptionKey(app, 'xwiki-encryption-key',
+  {
+    env: env
+  })
+
+const xwikivpc = new XwikiVpc(app, 'xwiki-prod-vpc', {
+  env: env
+
+})
+
+const xwikiEfs = new XwikiEfs(app, 'xwiki-prod-efs', {
+  vpc: xwikivpc.xwikivpc,
+  encryptionkey: xwikiEncryptionKey.EncryptionKey,
+  env: env
+})
+
+const xwikirds = new xwikiRds(app, 'xwiki-rds', {
+  vpc: xwikivpc.xwikivpc,
+  encryptionkey: xwikiEncryptionKey.SecretEncryptionKey,
+  env: env
+})
