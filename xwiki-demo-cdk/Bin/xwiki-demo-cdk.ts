@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
@@ -17,12 +18,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-import * as cdk from '@aws-cdk/core';
+import 'source-map-support/register'
+import { App } from '@aws-cdk/core'
+import { EC2XwikiDemo } from '../lib/stacks/ec2-xwiki-demo'
+import { xwikidownload, region } from '../lib/stacks/config'
 
-export class XwikiDemoCdkStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
-
-    // The code that defines your stack goes here
+const app = new App()
+new EC2XwikiDemo(app, 'ec2XwikiDemo', {
+  xwiki: xwikidownload, //from the config file
+  env: {
+    region: region //from the config file
   }
-}
+})
