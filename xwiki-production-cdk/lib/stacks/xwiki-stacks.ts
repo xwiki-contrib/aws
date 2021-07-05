@@ -10,13 +10,25 @@ import { Role, ServicePrincipal } from '@aws-cdk/aws-iam'
 import { Secret } from '@aws-cdk/aws-secretsmanager'
 import { ApplicationLoadBalancer, ApplicationProtocol } from '@aws-cdk/aws-elasticloadbalancingv2'
 import { xwikistackprops } from '../models/xwiki-stack-models'
-import { xwikiVesrion } from '../config'
+import { xwikiVersion } from '../config'
 
+/**
+ * The XwikiProductionStacks is used for confuguring stacks in the vpc provissioned by class XwikiVpc.
+ * 
+ * <p> this stack will provission two encryption keys using AWS KMS, ECS fargate clusture, RDS instance
+ * with MySQL and a loadbalncer. The output after running the installation will be DNS Endpoint for connecting to the XWiki Installation
+ * The target for loadbalancer is Fargate Service, which is configured in the private subnet part of the VPC
+ * The security group used for Fargate sevice will allow inbound traffic connection to HTTP port, and will allow connection to DB for xwiki
+ * The fargate service uses task defination that will add container and use image from dockerhub. 
+ * This class will provission RDS with mysql for XWiki DB using serverless clusture with Aurora MySQL engine. 
+ * The password used by xwikirds is autogenertatd of length 16. This RDS resides in private subnet part of the VPC.
+ * 
+ */
 export class XwikiProductionStacks extends Stack {
     constructor (scope: App, id: string, props: xwikistackprops) {
       super(scope, id, props)
 
-      const xwikiEncryptionKey = new Key(this, 'XWikiEncryptionKey', {
+      const xwikiEncryptionKey = new Key(this, 'XWikiEncryptionKey', { //encryption key to be used by the file system and rds
         alias: `xwiki`,
         description: `Encryption Key for XWiki Storage Resources`,
         enableKeyRotation: true,
@@ -24,7 +36,7 @@ export class XwikiProductionStacks extends Stack {
         trustAccountIdentities: true,
       });
   
-      const xwikiSecretEncryptionKey = new Key(this, 'XWikiSecretEncryptionKey', {
+      const xwikiSecretEncryptionKey = new Key(this, 'XWikiSecretEncryptionKey', { //used for fenerating password for rds
         alias: `xwiki-secret`,
         description: `Encryption Key for XWiki Secrets`,
         enableKeyRotation: true,
@@ -32,13 +44,13 @@ export class XwikiProductionStacks extends Stack {
         trustAccountIdentities: true,
       });
   
-      const xwikiEfsSg = new SecurityGroup(this, 'XWikiEfsSecurityGroup', {
+      const xwikiEfsSg = new SecurityGroup(this, 'XWikiEfsSecurityGroup', { //security group for file system.
         vpc: props.vpc,
         allowAllOutbound: true,
         description: `Security Group for XWiki EFS`
       });
   
-      const xwikiEfs = new FileSystem(this, 'XWikiFileSystem', {
+      const xwikiEfs = new FileSystem(this, 'XWikiFileSystem', { // File System that will conatin static xwiki files
         vpc: props.vpc,
         enableAutomaticBackups: true,
         encrypted: true,
@@ -52,13 +64,13 @@ export class XwikiProductionStacks extends Stack {
         )
       });
   
-      const xwikiRdsSg = new SecurityGroup(this, 'XWikiRdsSecurityGroup', {
+      const xwikiRdsSg = new SecurityGroup(this, 'XWikiRdsSecurityGroup', { //security group for xwiki RDS
         vpc: props.vpc,
         allowAllOutbound: true,
         description: `Security Group for XWiki RDS`
       });
   
-      const xwikiRdsDbSubnetGroup = new SubnetGroup(this, 'XWikiDbSubnetGroup', {
+      const xwikiRdsDbSubnetGroup = new SubnetGroup(this, 'XWikiDbSubnetGroup', { //subnet group for RDS
         description: `DB SubnetGroup for XWiki RDS`,
         vpc: props.vpc,
         vpcSubnets: props.vpc.selectSubnets(
@@ -68,7 +80,7 @@ export class XwikiProductionStacks extends Stack {
         )
       });
   
-      const xwikiRdsPwSecret = new Secret(this, 'XWikiEcsUserPassword', {
+      const xwikiRdsPwSecret = new Secret(this, 'XWikiEcsUserPassword', { //Auto-generated password for RDS
         description: `RDS UserSecret for XWiki RDS`,
         encryptionKey: xwikiSecretEncryptionKey,
         generateSecretString: {
@@ -77,7 +89,7 @@ export class XwikiProductionStacks extends Stack {
         }
       });
   
-      const xwikiRds = new ServerlessCluster(this, 'XWikiDbCluster', {
+      const xwikiRds = new ServerlessCluster(this, 'XWikiDbCluster', { //configuration of RDS for xwiki
         engine: DatabaseClusterEngine.auroraMysql({
           version: AuroraMysqlEngineVersion.VER_2_07_1
         }),
@@ -110,12 +122,12 @@ export class XwikiProductionStacks extends Stack {
         vpc: props.vpc
       });
   
-      const xwikiTaskIamRole = new Role(this, 'XwikiTaskRole', {
+      const xwikiTaskIamRole = new Role(this, 'XwikiTaskRole', { //IAM role for ECS fargate
         assumedBy: new ServicePrincipal('ecs-tasks.amazonaws.com'),
         description: `IAM Task Role for XWiki ECS Fargate`,
       });
   
-      const xwikiTaskDefinition = new FargateTaskDefinition(this, 'XWikiTaskDefinition', {
+      const xwikiTaskDefinition = new FargateTaskDefinition(this, 'XWikiTaskDefinition', { //taskdefination for ecs service
         cpu: 2048,
         memoryLimitMiB: 4096,
         volumes: [
@@ -138,8 +150,8 @@ export class XwikiProductionStacks extends Stack {
   
       xwikiLogGroup.grantWrite(xwikiTaskIamRole);
   
-      const xwikiContainer = xwikiTaskDefinition.addContainer('XWikiImage', {
-        image: ContainerImage.fromRegistry(xwikiVesrion),
+      const xwikiContainer = xwikiTaskDefinition.addContainer('XWikiImage', { //adding container configuration in taskdefination
+        image: ContainerImage.fromRegistry(xwikiVersion),
         environment: {
           'DB_HOST': xwikiRds.clusterEndpoint.hostname,
           'DB_DATABASE': 'xwiki',
@@ -211,7 +223,7 @@ export class XwikiProductionStacks extends Stack {
         `Allow DB Connection for XWiki Service`
       );
   
-      const xwikiEcsService = new FargateService(this, 'XWikiService', {
+      const xwikiEcsService = new FargateService(this, 'XWikiService', { //confuguration of fargate service
         cluster: xwikiFargateCluster,
         taskDefinition: xwikiTaskDefinition,
         desiredCount: 1,
@@ -226,7 +238,7 @@ export class XwikiProductionStacks extends Stack {
         ]
       });
   
-      xwikiLoadBalancerListener.addTargets('XWikiTargets', {
+      xwikiLoadBalancerListener.addTargets('XWikiTargets', { //adding target as ecs service to loadbalancer
         deregistrationDelay: Duration.minutes(1),
         protocol: ApplicationProtocol.HTTP,
         targets: [
@@ -237,7 +249,7 @@ export class XwikiProductionStacks extends Stack {
         }
       });
   
-      new CfnOutput(this, 'XWikiLoadBalancerDns', {
+      new CfnOutput(this, 'XWikiLoadBalancerDns', { //this will output the DNS endpoint to connect to xwiki instance
         value: xwikiLoadBalancer.loadBalancerDnsName,
         description: `DNS Endpoint for connecting to the XWiki Installation`
       });
