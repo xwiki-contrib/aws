@@ -20,13 +20,12 @@
  */
 import * as cdk from '@aws-cdk/core'
 import { XwikiVpc } from '../lib/stacks/vpc'
-import { region, accountNumber } from '../lib/config'
+import { region } from '../lib/config'
 import { XwikiProductionStacks } from '../lib/stacks/xwiki-stacks'
 
 const app = new cdk.App()
 
 const env = {
-  account: accountNumber,
   region: region
 }
 
