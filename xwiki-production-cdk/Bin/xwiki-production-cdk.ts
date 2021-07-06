@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
@@ -17,21 +18,25 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-import * as sns from '@aws-cdk/aws-sns';
-import * as subs from '@aws-cdk/aws-sns-subscriptions';
-import * as sqs from '@aws-cdk/aws-sqs';
-import * as cdk from '@aws-cdk/core';
+import * as cdk from '@aws-cdk/core'
+import { XwikiVpc } from '../lib/stacks/vpc'
+import { region } from '../lib/config'
+import { XwikiProductionStacks } from '../lib/stacks/xwiki-stacks'
 
-export class XwikiProductionCdkStack extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+const app = new cdk.App()
 
-    const queue = new sqs.Queue(this, 'XwikiProductionCdkQueue', {
-      visibilityTimeout: cdk.Duration.seconds(300)
-    });
-
-    const topic = new sns.Topic(this, 'XwikiProductionCdkTopic');
-
-    topic.addSubscription(new subs.SqsSubscription(queue));
-  }
+const env = {
+  region: region
 }
+
+const xwikivpc = new XwikiVpc(app, 'xwiki-prod-vpc', {
+  env: env
+
+})
+
+const xwikiproductionstacks = new XwikiProductionStacks(app, 'xwiki-ecs-loadbal', {
+  vpc: xwikivpc.xwikivpc,
+  env: env
+})
+
+xwikiproductionstacks.addDependency(xwikivpc)
