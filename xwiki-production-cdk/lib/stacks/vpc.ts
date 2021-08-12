@@ -11,7 +11,7 @@ export class XwikiVpc extends cdk.Stack {
       super(scope, id, props)
 
       this.xwikivpc = new Vpc(this, 'xwiki-vpc', {
-        cidr: '10.42.42.0/24',
+        cidr: '10.42.42.0/24', //this is enough for this installation but not if you want to deploy other services inside this.
         defaultInstanceTenancy: DefaultInstanceTenancy.DEFAULT,
         maxAzs: 2,
         natGatewayProvider: NatProvider.gateway(),

@@ -28,7 +28,7 @@ export class EC2XwikiDemo extends Stack {
     super(scope, id, props)
 
     const defaultVpc = new Vpc(this, 'VPC', {
-      cidr: '10.0.0.0/16',
+      cidr: '10.0.0.0/16', 
       maxAzs: 2,
       subnetConfiguration: [
         {
@@ -93,7 +93,7 @@ export class EC2XwikiDemo extends Stack {
       role: role,
       securityGroup: securityGroup,
       instanceName: 'ec2-xwiki-demo',
-      instanceType: InstanceType.of( // t2.micro has free tier usage in aws
+      instanceType: InstanceType.of( 
         InstanceClass.T2,
         InstanceSize.MEDIUM
       ),
@@ -101,7 +101,7 @@ export class EC2XwikiDemo extends Stack {
         generation: AmazonLinuxGeneration.AMAZON_LINUX_2
       }),
 
-      keyName: 'test', // user will first create this key in console
+      keyName: 'xwiki-demo-key', // user will first create this key in console
 
       userData: UserData.forLinux({
         shebang: `#! /bin/bash \n sudo yum -q -y install java-1.8.0-openjdk \n sudo yum -q -y install unzip \n mkdir xwikihome \n wget -q -O xwiki_packer.zip ${props.xwiki} \n unzip -q xwiki_packer.zip -d /home/ec2-user/xwikihome`
@@ -111,7 +111,7 @@ export class EC2XwikiDemo extends Stack {
 
     
     new CfnOutput(this, 'xwiki-demo-instance-output', {
-      value: instance.instancePublicIp
+      value: instance.instancePublicIp //ip adress of the instance configured.
     })
   }
 }
