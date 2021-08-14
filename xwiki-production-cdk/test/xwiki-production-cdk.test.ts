@@ -17,12 +17,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-import { SynthUtils } from '@aws-cdk/assert';
-import { App } from '@aws-cdk/core';
-import * as cdk from '@aws-cdk/core';
+import { SynthUtils } from '@aws-cdk/assert'
+import { App } from '@aws-cdk/core'
+import * as cdk from '@aws-cdk/core'
 import { region } from '../lib/config'
-import {XWikiProductionStacks} from '../lib/stacks/xwiki-stacks';
-import {XWikiVpc} from '../lib/stacks/vpc';
+import { XWikiProductionStacks } from '../lib/stacks/xwiki-stacks'
+import { XWikiVpc } from '../lib/stacks/vpc'
 
 const app = new App()
 
@@ -36,7 +36,5 @@ const xwikivpc = new XWikiVpc(app, 'xwiki-prod-vpc', {
 })
 const stack = new XWikiProductionStacks(app, 'xwiki-stack', {
   vpc: xwikivpc.xwikivpc,
-  env:env
+  env: env
 })
-
-

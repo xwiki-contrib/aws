@@ -19,6 +19,5 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-export const region = 'eu-central-1'; // region in which you want to configure xwiki instance
-export const xwikiVersion = 'xwiki:lts-mysql-tomcat' //or 'xwiki:mysql-stable-tomcat'
-
+export const region = 'eu-central-1' // region in which you want to configure xwiki instance
+export const xwikiVersion = 'xwiki:lts-mysql-tomcat' // or 'xwiki:mysql-stable-tomcat'
