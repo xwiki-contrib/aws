@@ -18,15 +18,25 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-import 'source-map-support/register'
-import { App } from '@aws-cdk/core'
-import { EC2XwikiDemo } from '../lib/stacks/ec2-xwiki-demo'
-import { xwikidownload, region } from '../lib/stacks/config'
+import * as cdk from '@aws-cdk/core'
+import { XWikiVpc } from '../lib/stacks/vpc'
+import { region } from '../lib/config'
+import { XWikiProductionStacks } from '../lib/stacks/xwiki-stacks'
 
-const app = new App()
-new EC2XwikiDemo(app, 'ec2XwikiDemo', {
-  xwiki: xwikidownload, //from the config file
-  env: {
-    region: region //from the config file
-  }
+const app = new cdk.App()
+
+const env = {
+  region: region
+}
+
+const xwikivpc = new XWikiVpc(app, 'xwiki-prod-vpc', {
+  env: env
+
 })
+
+const xwikiproductionstacks = new XWikiProductionStacks(app, 'xwiki-ecs-loadbal', {
+  vpc: xwikivpc.xwikivpc,
+  env: env
+})
+
+xwikiproductionstacks.addDependency(xwikivpc)

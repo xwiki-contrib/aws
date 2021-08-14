@@ -23,7 +23,7 @@ import { Vpc, SecurityGroup, Peer, Port, Instance, InstanceType, InstanceClass, 
 import { Role, ServicePrincipal } from '@aws-cdk/aws-iam'
 import { ec2props } from '../stacks/Ec2-model'
 
-export class EC2XwikiDemo extends Stack {
+export class EC2XWikiDemo extends Stack {
   constructor (scope: App, id: string, props: ec2props) {
     super(scope, id, props)
 

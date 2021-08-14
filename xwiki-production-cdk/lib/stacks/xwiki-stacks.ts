@@ -24,7 +24,7 @@ import { xwikiVersion } from '../config'
  * The password used by xwikirds is autogenertatd of length 16. This RDS resides in private subnet part of the VPC.
  * 
  */
-export class XwikiProductionStacks extends Stack {
+export class XWikiProductionStacks extends Stack {
     constructor (scope: App, id: string, props: xwikistackprops) {
       super(scope, id, props)
 
