@@ -19,12 +19,12 @@
  */
 import { expect as expectCDK, haveResource } from '@aws-cdk/assert';
 import * as cdk from '@aws-cdk/core';
-import * as XwikiProductionCdk from '../lib/xwiki-production-cdk-stack';
+import * as XWikiProductionCdk from '../lib/stacks/xwiki-stacks';
 
 test('SQS Queue Created', () => {
     const app = new cdk.App();
     // WHEN
-    const stack = new XwikiProductionCdk.XwikiProductionCdkStack(app, 'MyTestStack');
+    const stack = new XWikiProductionCdk.XwikiProductionCdkStack(app, 'MyTestStack');
     // THEN
     expectCDK(stack).to(haveResource("AWS::SQS::Queue",{
       VisibilityTimeout: 300
@@ -34,7 +34,7 @@ test('SQS Queue Created', () => {
 test('SNS Topic Created', () => {
   const app = new cdk.App();
   // WHEN
-  const stack = new XwikiProductionCdk.XwikiProductionCdkStack(app, 'MyTestStack');
+  const stack = new XWikiProductionCdk.XwikiProductionCdkStack(app, 'MyTestStack');
   // THEN
   expectCDK(stack).to(haveResource("AWS::SNS::Topic"));
 });

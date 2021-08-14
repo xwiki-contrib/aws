@@ -13,7 +13,7 @@ import { xwikistackprops } from '../models/xwiki-stack-models'
 import { xwikiVersion } from '../config'
 
 /**
- * The XwikiProductionStacks is used for confuguring stacks in the vpc provissioned by class XwikiVpc.
+ * The XWikiProductionStacks is used for confuguring stacks in the vpc provissioned by class XwikiVpc.
  * 
  * <p> this stack will provission two encryption keys using AWS KMS, ECS fargate clusture, RDS instance
  * with MySQL and a loadbalncer. The output after running the installation will be DNS Endpoint for connecting to the XWiki Installation
@@ -21,7 +21,7 @@ import { xwikiVersion } from '../config'
  * The security group used for Fargate sevice will allow inbound traffic connection to HTTP port, and will allow connection to DB for xwiki
  * The fargate service uses task defination that will add container and use image from dockerhub. 
  * This class will provission RDS with mysql for XWiki DB using serverless clusture with Aurora MySQL engine. 
- * The password used by xwikirds is autogenertatd of length 16. This RDS resides in private subnet part of the VPC.
+ * The password used by XWikirds is autogenertatd of length 16. This RDS resides in private subnet part of the VPC.
  * 
  */
 export class XWikiProductionStacks extends Stack {
@@ -122,7 +122,7 @@ export class XWikiProductionStacks extends Stack {
         vpc: props.vpc
       });
   
-      const xwikiTaskIamRole = new Role(this, 'XwikiTaskRole', { //IAM role for ECS fargate
+      const xwikiTaskIamRole = new Role(this, 'XWikiTaskRole', { //IAM role for ECS fargate
         assumedBy: new ServicePrincipal('ecs-tasks.amazonaws.com'),
         description: `IAM Task Role for XWiki ECS Fargate`,
       });
