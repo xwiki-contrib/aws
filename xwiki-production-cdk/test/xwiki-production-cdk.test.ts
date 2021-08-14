@@ -17,24 +17,26 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-import { expect as expectCDK, haveResource } from '@aws-cdk/assert';
+import { SynthUtils } from '@aws-cdk/assert';
+import { App } from '@aws-cdk/core';
 import * as cdk from '@aws-cdk/core';
-import * as XWikiProductionCdk from '../lib/stacks/xwiki-stacks';
+import { region } from '../lib/config'
+import {XWikiProductionStacks} from '../lib/stacks/xwiki-stacks';
+import {XWikiVpc} from '../lib/stacks/vpc';
 
-test('SQS Queue Created', () => {
-    const app = new cdk.App();
-    // WHEN
-    const stack = new XWikiProductionCdk.XwikiProductionCdkStack(app, 'MyTestStack');
-    // THEN
-    expectCDK(stack).to(haveResource("AWS::SQS::Queue",{
-      VisibilityTimeout: 300
-    }));
-});
+const app = new App()
 
-test('SNS Topic Created', () => {
-  const app = new cdk.App();
-  // WHEN
-  const stack = new XWikiProductionCdk.XwikiProductionCdkStack(app, 'MyTestStack');
-  // THEN
-  expectCDK(stack).to(haveResource("AWS::SNS::Topic"));
-});
+const env = {
+  region: region
+}
+
+const xwikivpc = new XWikiVpc(app, 'xwiki-prod-vpc', {
+  env: env
+
+})
+const stack = new XWikiProductionStacks(app, 'xwiki-stack', {
+  vpc: xwikivpc.xwikivpc,
+  env:env
+})
+
+

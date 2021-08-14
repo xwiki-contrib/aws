@@ -24,7 +24,7 @@ import { EC2XWikiDemo } from '../lib/stacks/ec2-xwiki-demo'
 import { xwikidownload, region } from '../lib/stacks/config'
 
 const app = new App()
-new EC2XWikiDemo(app, 'ec2XwikiDemo', {
+new EC2XWikiDemo(app, 'ec2XWikiDemo', {
   xwiki: xwikidownload, //from the config file
   env: {
     region: region //from the config file
