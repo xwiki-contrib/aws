@@ -34,7 +34,7 @@ const xwikivpc = new XWikiVpc(app, 'xwiki-prod-vpc', {
 
 })
 
-const xwikiproductionstacks = new XWikiProductionStacks(app, 'xwiki-ecs-loadbal', {
+const xwikiproductionstacks = new XWikiProductionStacks(app, 'xwiki-prod-stacks', {
   vpc: xwikivpc.xwikivpc,
   env: env
 })
