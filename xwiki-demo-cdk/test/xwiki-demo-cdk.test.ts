@@ -20,13 +20,13 @@
 import { expect as expectCDK, haveResourceLike, countResources, SynthUtils } from '@aws-cdk/assert'
 import { App } from '@aws-cdk/core'
 import '@aws-cdk/assert/jest'
-import { EC2XwikiDemo } from '../lib/stacks/ec2-xwiki-demo'
+import { EC2XWikiDemo } from '../lib/stacks/ec2-xwiki-demo'
 import { xwikidownload } from '../lib/stacks/config'
 
 const app = new App()
 
 
-const stack = new EC2XwikiDemo(app, 'xwiki-cdk-demo', {
+const stack = new EC2XWikiDemo(app, 'xwiki-cdk-demo', {
   xwiki: xwikidownload
 })
 

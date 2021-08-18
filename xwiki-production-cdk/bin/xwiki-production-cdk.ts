@@ -19,9 +19,9 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 import * as cdk from '@aws-cdk/core'
-import { XwikiVpc } from '../lib/stacks/vpc'
+import { XWikiVpc } from '../lib/stacks/vpc'
 import { region } from '../lib/config'
-import { XwikiProductionStacks } from '../lib/stacks/xwiki-stacks'
+import { XWikiProductionStacks } from '../lib/stacks/xwiki-stacks'
 
 const app = new cdk.App()
 
@@ -29,12 +29,12 @@ const env = {
   region: region
 }
 
-const xwikivpc = new XwikiVpc(app, 'xwiki-prod-vpc', {
+const xwikivpc = new XWikiVpc(app, 'xwiki-prod-vpc', {
   env: env
 
 })
 
-const xwikiproductionstacks = new XwikiProductionStacks(app, 'xwiki-ecs-loadbal', {
+const xwikiproductionstacks = new XWikiProductionStacks(app, 'xwiki-prod-stacks', {
   vpc: xwikivpc.xwikivpc,
   env: env
 })
