@@ -1,6 +1,6 @@
 # XWiki AWS
 
-Different packagings to deploy XWiki on AWS
+CDK code to deploy XWiki on AWS
 
 * Project Lead: 
   * [Vincent Massol](http://www.xwiki.org/xwiki/bin/view/XWiki/VincentMassol)
