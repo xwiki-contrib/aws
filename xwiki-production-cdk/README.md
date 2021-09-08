@@ -1,4 +1,4 @@
-# Welcome to XWiki Production Installation!
+# Welcome to XWiki AWS Installation!
 
 You should explore the contents of this project. It demonstrates a CDK app with an instance of a stack (`XWikiProductionStacks`) and (`XWikiVpc`)
 which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
